@@ -1,0 +1,14 @@
+ public void add(E e) {
+            checkForComodification();
+
+            try {
+                int i = cursor;
+                ArrayList.this.add(i, e);
+                cursor = i + 1;
+                lastRet = -1;
+                expectedModCount = modCount;
+            } catch (IndexOutOfBoundsException ex) {
+                throw new ConcurrentModificationException();
+            }
+        }
+    listIterator的add中expectedModCount由modCount赋值过来并不会出错

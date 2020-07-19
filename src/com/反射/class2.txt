@@ -1,0 +1,2 @@
+user=孙悟
+password=123456

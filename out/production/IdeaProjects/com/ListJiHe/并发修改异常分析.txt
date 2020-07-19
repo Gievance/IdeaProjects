@@ -1,0 +1,54 @@
+Exception in thread "main" java.util.ConcurrentModificationException
+	at java.base/java.util.ArrayList$Itr.checkForComodification(ArrayList.java:1042)
+	at java.base/java.util.ArrayList$Itr.next(ArrayList.java:996)
+	at com.ListJiHe.ListException.main(ListException.java:19)
+错误提示：
+    public interface List<E> extends Collection<E> {
+        Iterator<E> iterator();
+        boolean add(E e);
+        }
+    public class ArrayList<E> extends AbstractList<E>  implements List<E>
+           {    public Iterator<E> iterator() {
+                    return new Itr();
+                    }
+                public boolean add(E e) {
+                            modCount++;
+                            add(e, elementData, size);
+                            return true;
+                        }
+
+
+               private class Itr implements Iterator<E>  {
+                         int expectedModCount = modCount;
+                /* modCount:实际修改集合的次数；来自继承的AbstractList
+                    expectedModeCount:预期修改集合的次数
+                */
+                AbstractList{
+                  protected transient int modCount = 0;
+                        }
+                        // prevent creating a synthetic constructor
+                        Itr() {}
+
+                        @SuppressWarnings("unchecked")
+                        public E next() {
+                            checkForComodification();
+                            int i = cursor;
+                            if (i >= size)
+                                throw new NoSuchElementException();
+                            Object[] elementData = ArrayList.this.elementData;
+                            if (i >= elementData.length)
+                                throw new ConcurrentModificationException();
+                            cursor = i + 1;
+                            return (E) elementData[lastRet = i];
+                        }
+
+
+
+                        final void checkForComodification() {
+                            if (modCount != expectedModCount)
+                                throw new ConcurrentModificationException();
+                        }
+                    }
+           }
+           总结：Iterator返回iterator对象时，modCount和expectedModCount已经相同。next会调用方法进行检查
+           由于，使用了add使modCount和expectedModCount不相同，故抛出异常
